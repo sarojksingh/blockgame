@@ -256,7 +256,7 @@ footer ul a:hover, footer ul a:focus
     height: 488px;
     margin: -67px auto 0;
     width: 778px;
-    background: url("../images/img.png") no-repeat scroll center top;
+    background: url("../images/img-one-1.png") no-repeat scroll center top;
    /* background: url(../images/img.png) no-repeat;*/
 }
 #game{
@@ -266,17 +266,18 @@ footer ul a:hover, footer ul a:focus
     /*box-shadow:-1px 1px 10px 3px #624034;*/
 }
 #game {
-    height: 434px;
+      height: 373px;
     left: 3px;
     margin: 0 auto;
-    top: 27px;
+    top: 40px;
     width: 620px;
 }
 
 .middleScreen{
-    width: 870px !important;
+    width: 701px !important;
     height: 384px !important;
     margin: 45px auto !important;
+    position: relative;
 }
 
 .left-img{  float: left;
@@ -300,4 +301,14 @@ footer ul a:hover, footer ul a:focus
     font-size: 15px;
     font-weight: bold;
     text-align: center;}
+#gameContainer{position: relative;}
+.leftBrick{position: absolute;left: 0px;}
+.rightBrick{position: absolute;right: 0px;}
+.leftBrick{width: 39px;top: 73px;left: 39px;}
+.rightBrick{width: 37px;top: 74px;right: 38px;}
+#imagecontainer img{max-width: 100%;}
 /* HTML 10 May 2015 */
+
+
+
+.welcome{display:block;font-style:12px;text-align:right;color:#1d2143;font-weight:bold;}

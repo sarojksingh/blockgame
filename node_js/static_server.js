@@ -1,4 +1,5 @@
 // Require the functionality we need to use:
+try{
 var http = require('http'),
 	url = require('url'),
 	path = require('path'),
@@ -6,8 +7,25 @@ var http = require('http'),
 	//path = require('path'),
 	fs = require('fs'),
 	io = require('socket.io');
-
+	mysql      = require('mysql');
 var WINS_TO_GAME = 5;
+
+/* For Localhost*/
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'root',
+  password : 'admin',
+  database : 'pongdb'
+});
+
+/* For Evon Testing Server*/
+
+// var connection = mysql.createConnection({
+//   host     : '54.160.13.227',
+//   user     : 'root',
+//   password : '123arnavv',
+//   database : 'pongdb'
+// });
 
 
 // Make a simple fileserver for all of our static content.
@@ -50,7 +68,7 @@ var app = http.createServer(function(req, resp){
    });
 });
 var arrayOfPlayers = [];
-var port = process.env.PORT || 1234;
+var port = process.env.PORT || 3000;
 app.listen(port);
 
 
@@ -64,6 +82,27 @@ io.listen(app).sockets.on("connection", function(socket){
 		socket.emit("someonesaid", {message: content.message, name: socket.name});
 	});
 
+	socket.on("send_user_id", function(data){
+		console.log(data.id);
+
+		//connection.connect();
+
+	var query = connection.query('SELECT * from ps_user where id=' + data.id); 
+  	query.on('error', function(err) {
+    throw err;
+	});
+ 
+	query.on('fields', function(fields) {
+    console.log(fields);
+	});
+ 
+	query.on('result', function(row) {
+    console.log(row);	
+	socket.emit("username", {name: row.username , amount : row.account_balance});
+	});
+		//connection.end();
+	});
+
 	socket.on("lookForPlayer", function(data){
 		for(var i = 0; i < arrayOfPlayers.length; i++) {
 			console.log("111111111" + arrayOfPlayers[i].id);
@@ -75,7 +114,7 @@ io.listen(app).sockets.on("connection", function(socket){
 			socket.emit("PlayerBusy");
 			socket.opponent = null;
 		} else {
-			socket.opponent.emit("challenged", {name: socket.name, challenger: socket.id, challenged: socket.opponent.id});
+			socket.opponent.emit("challenged", {name: socket.name, player2:socket.opponent.name ,challenger: socket.id, challenged: socket.opponent.id});
 		}
 		
 	});
@@ -87,7 +126,16 @@ io.listen(app).sockets.on("connection", function(socket){
 		}
 		socket.score = 0;
 		socket.opponent.score = 0;
+		//socket.opponent.emit("Prestart");
+		socket.opponent.emit("Prestart");
+		socket.emit("Prestart");
+		//socket.opponent.emit("GameStart");
+	});
+
+	socket.on("Playnow", function(data){
 		socket.opponent.emit("GameStart");
+		//socket.emit("Prestart");
+		//socket.opponent.emit("GameStart");
 	});
 
 	socket.on("declined", function(data) {
@@ -98,6 +146,15 @@ io.listen(app).sockets.on("connection", function(socket){
 		}
 		data.challenger.opponent = null;
 	});
+
+	socket.on("Prestart_2", function(data){
+		socket.opponent.emit("Prestart_3",data);
+		socket.emit("Prestart_3",data);
+	});
+
+	// socket.on("play_now", function(data){
+	// 	socket.emit("GameStart");
+	// });
 
 	// Listen for the "reflect" message from the server
 	socket.on("reflect", function(data){
@@ -139,6 +196,14 @@ io.listen(app).sockets.on("connection", function(socket){
 	socket.on("gameStarted", function(data) {
 		console.log(socket.id + " started the game.");
 		console.log("emitting game started to " + socket.opponent.id);
+		//console.log("11111111111111111111111" + socket.opponent.name + "22222222222222" + socket.name);
+		data.player_1 = socket.name;
+		data.player_2 = socket.opponent.name;
+		
+		socket.emit("showname", {one : socket.name , two : socket.opponent.name});
+		socket.opponent.emit("showname", {one : socket.opponent.name , two : socket.name});
+
+
 		socket.opponent.emit("gameStarted", data);
 	});
 
@@ -189,4 +254,8 @@ io.listen(app).sockets.on("connection", function(socket){
 
 });
 
+}
 
+catch (err){
+	console.log(err.message);
+}

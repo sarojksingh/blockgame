@@ -4,6 +4,7 @@
   "dependencies": {
     "mime": "~1.2.11",
     "node-php": "*",
+    "mysql": "*",
     "socket.io": "~0.9.16"
   }
 }

@@ -1,5 +1,30 @@
-var socket = io.connect(window.location.origin);
+$(document).ready(function($){
+	 var URL = "http://localhost";
+	 //alert(newvar);
+	MyString = newvar;
+	Position = MyString;
+	Position = Position.substring(22); // TO GET id in URL
+	//alert(Position);
+		if(Position == ''){
+			window.location=  URL + "/game_blocker/profile";
+		}
 
+		if(newvar == 'stringundefined'){
+	 	window.location=  URL + "/game_blocker/profile";
+	 	}
+
+	 	if(newvar == 'string'){
+	 	window.location=  URL + "/game_blocker/profile";
+		 }
+
+		else{
+	 	socket.emit("send_user_id", {id: Position});
+		}
+
+});
+
+
+var socket = io.connect(window.location.origin);
 function newGame(event) {
 	document.getElementById("gameContainer").style.display = "none";
 	document.getElementById("imagecontainer").style.display = "none";
@@ -63,6 +88,56 @@ function matchMake(event) {
 	}
 }
 
+// function counter (){
+
+//   var counter = 10;
+
+//   setInterval(function() {
+//     counter--;
+//     if (counter >= 0) {
+//       span = document.getElementById("count");
+//       span.innerHTML = counter;
+//     }
+//     // Display 'counter' wherever you want to display it.
+//     if (counter === 0) {
+//         alert('this is where it happens');
+//         clearInterval(counter);
+//     }
+
+//   }, 1000);
+// }
+
+var seconds;
+  var temp;
+ 
+  function countdown() {
+    seconds = document.getElementById('countdown').innerHTML;
+    seconds = parseInt(seconds, 10);
+ 
+    if (seconds == 1) {
+      temp = document.getElementById('countdown');
+      socket.emit("Playnow", {
+
+	});
+       //temp.innerHTML = "all done, bye bye";
+      //return;
+      //pong.resetBall();
+    }
+ 	
+ 	seconds--;
+    document.getElementById("countdown").style.display = "block";
+    temp = document.getElementById('countdown');
+    temp.innerHTML = seconds;
+    timeoutMyOswego = setTimeout(countdown, 1000);
+
+    if(seconds < 1){
+ 		document.getElementById("countdown").style.display = "none";
+ 	}
+ 	
+  }
+ 
+
+
 document.addEventListener("DOMContentLoaded", function() {
 	document.getElementById("launchBall").addEventListener("click", start, false);
 	document.getElementById("lookForPlayer").addEventListener("click", matchMake, false);
@@ -75,7 +150,6 @@ window.addEventListener("paddlehit-left", function(e){
 	// e.detail.hit will be true if the client hit the ball with his/her paddle.
 	if (e.detail.hit) {
 		console.log("HIT PADDLE.  New angle: %f", e.detail.angle); // log a message to the console
- 
 		// Tell our opponent via Socket.IO about the ball's new angle and position:
 		socket.emit("reflect", {
 			angle: e.detail.angle,
@@ -85,6 +159,7 @@ window.addEventListener("paddlehit-left", function(e){
 		// Note: The game automatically launches the ball and determines the angle based on the ball's position relative to the paddle position.  
 		// We therefore do not need to call pong.launch() in here (but our opponent will, as shown below).
 	}else{
+		//start();
 		document.getElementById("launchBall").style.display = "";
 		socket.emit("updateScore");
  
@@ -93,7 +168,7 @@ window.addEventListener("paddlehit-left", function(e){
 });
 
 window.addEventListener("paddlemove", function(e)
-{
+{ 
 	socket.emit("PaddleMoved", {position: e.detail.position});
 });
 
@@ -107,24 +182,36 @@ socket.on("OppReflect", function(data) {
 });
 
 socket.on("launch", function(data) {
-	document.getElementById("gameContainer").style.display = "block";
-	document.getElementById("imagecontainer").style.display = "block";
-	pong.resetBall();
-	pong.launch(data.angle, -data.direction);
-});
+document.getElementById("gameContainer").style.display = "block";
+document.getElementById("imagecontainer").style.display = "block";
+pong.resetBall();     pong.launch(data.angle, -data.direction); });
 
 socket.on("gameStarted", function(data) {
+	//alert("111111111111");
+	//countdown();
 	console.log("game started");
 	document.getElementById("gameContainer").style.display = "block";
 	document.getElementById("imagecontainer").style.display = "block";
 	document.getElementById("matchMaking").style.display = "none";
 	document.getElementById("hideWhilePlaying").style.display = "none";
+	document.getElementById("countdown").style.display = "none";
+
+	
 	pong.init();
 	pong.resetBall();
 	pong.launch(data.angle, -data.direction);
 });
 
+
+socket.on("showname", function(data) {
+document.getElementById("player_1").innerHTML = data.one;
+	document.getElementById("player_2").innerHTML = data.two;
+});
+
+
 socket.on("GameStart", function(data) {
+	//alert("erewrewrwerwqerwqe");
+	//countdown();
 	// generate an initial angle between -60 degrees and +60 degrees:
 	var initAngle = -60 + 120*Math.random();
 	 
@@ -136,13 +223,14 @@ socket.on("GameStart", function(data) {
 	document.getElementById("imagecontainer").style.display = "block";
 	document.getElementById("matchMaking").style.display = "none";
 	document.getElementById("hideWhilePlaying").style.display = "none";
-	 
+	document.getElementById("countdown").style.display = "none";
+	 	 
 	// initialize the game canvas:
 	pong.init();
 	 
 	// move the ball to the center:
 	 pong.resetBall();
-	 
+
 	// set the ball into motion:
 	pong.launch(initAngle, initDirection);
 
@@ -153,6 +241,53 @@ socket.on("GameStart", function(data) {
 		angle: initAngle,
 		direction: initDirection
 	});
+});
+
+
+socket.on("Prestart", function(data) {
+	countdown();
+	// show the game canvas:
+	document.getElementById("gameContainer").style.display = "block";
+	document.getElementById("imagecontainer").style.display = "block";
+	document.getElementById("matchMaking").style.display = "none";
+	document.getElementById("hideWhilePlaying").style.display = "none";
+	 
+	//  socket.emit("Prestart_2", {
+		
+	// });
+
+	// // initialize the game canvas:
+	// pong.init();
+	 
+	// // move the ball to the center:
+	//  pong.resetBall();
+
+	// // set the ball into motion:
+	// pong.launch(initAngle, initDirection);
+
+	// console.log("game started");
+	 
+	// // tell the server about the ball's initial angle and direction.  For example:
+	// socket.emit("gameStarted", {
+	// 	angle: initAngle,
+	// 	direction: initDirection
+	// });
+});
+
+socket.on("Prestart_3", function(data) {
+	countdown();
+	// // generate an initial angle between -60 degrees and +60 degrees:
+	// var initAngle = -60 + 120*Math.random();
+	 
+	// // randomly choose the initial direction of the ball:
+	// var initDirection = Math.random() < 0.5 ? -1 : 1;
+	 
+	// show the game canvas:
+	document.getElementById("gameContainer").style.display = "block";
+	document.getElementById("imagecontainer").style.display = "block";
+	document.getElementById("matchMaking").style.display = "none";
+	document.getElementById("hideWhilePlaying").style.display = "none";
+
 });
 
 socket.on("PlayerDoesNotWantToPlay", function(data) {
@@ -178,6 +313,15 @@ socket.on("newPlayer", function(data) {
 	// Assign text and value to Option object
 	opt.text = data.text;
 	opt.value = data.value;
+});
+
+socket.on("username", function(data) {
+	console.log(data.name);
+		document.getElementById("welcome_name").innerHTML = "Welcome : " + data.name + " " + ", $" + data.amount;
+		document.getElementById("playerList").style.display = "";
+		document.getElementById("scores").style.display ="";
+		document.getElementById("matchMaking").style.display ="none";
+		socket.emit("joinedLobby", {name: data.name});
 });
 
 socket.on("player_disconnect", function(data) {
@@ -239,6 +383,7 @@ socket.on("someonesaid", function(content){
 	document.getElementById("messages").appendChild(li);
 });
 Ext.onReady(function(){
+
 	Ext.fly("send").on("click", function(){
 		// When the "send" button is clicked, emit a "message" event to the server containing a chat message
 		socket.emit("message", {message: Ext.fly("comment").getValue()});

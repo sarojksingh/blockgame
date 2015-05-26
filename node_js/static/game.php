@@ -70,6 +70,9 @@
 </head>
 <body>
 <section id="mainbody">
+<script> var myParam = location.search.split('token=')[1]; 
+			var newvar = "string" + myParam;
+</script>
 	<div id="wraper">
 		<div id="contbody">
 	      <header class="hdcont clearfix">
@@ -106,6 +109,7 @@
 	      <!-- middle content panel -->
 	      <section id="article">
 			  <div id="main">
+			  	<span class="welcome" id="welcome_name"></span>
 			  	<div class="socreboardOuter">
 					<div id="hideWhilePlaying">
 						<div id="scores" style="display:none;">
@@ -128,30 +132,43 @@
 					<div id="imagecontainer" style="display:none">
 					<div class="left-img">
 						<img src="images/yellow_bg.png">
-						<label>Player Name</label>
+						<label id="player_1"></label>
 						<span>You</span>
 					</div>
 					<div class="right-img">
 						<img src="images/blue_bg.png">
-						<label>Player Name</label>
+						<label id="player_2"></label>
 					</div>
 					</div>
 					<div style="clear:both;"></div>
 					<div id="gameContainer" style="display:none">
+						<div class="leftBrick">
+							<img src="images/1.2.png">
+							<img src="images/1.2.png">
+							<img src="images/1.2.png">
+							<img src="images/1.2.png">
+						</div>
+						<div class="rightBrick">
+							<img src="images/1.1.png">
+							<img src="images/1.1.png">
+							<img src="images/1.1.png">
+							<img src="images/1.1.png">
+						</div>
 						<div id="game">
 							<div class="middleScreen">
 								
 							</div>
 						</div>
 					</div>
-					
+					<div id="countdown" style="display: none; position: absolute;top: 44%;font-size: 47px;left: 47%;color:#E3AC72;font-weight: bold;font-family: Verdana;">10</div>
+					<!-- <p>You'll be automatically redirected in <span id="count">10</span> seconds...</p> -->
 					<div id="gameMessage"></div><br />
-					<div id="matchMaking">
+					<div id="matchMaking" style="display:none">
 						<h2>Enter Your Name that will display to online players</h2>
 						<div class="mathcMakingInnew">
 							<label>Name:</label>
 							<div class="makingForm">
-								<input type="text" id="playerName"><br>
+								<input type="text" id="playerName" readonly=""><br>
 								<button id="joinLobby"></button>
 							</div>
 						<button style="display:none;" id="lookForPlayer">Find Match</button><br />
@@ -169,13 +186,13 @@
 				</div> -->
 				<!-- Include the Socket.IO and Ext libraries -->
 				<!--script src="//cdn.sencha.io/ext-4.1.1-gpl/ext-all-dev.js"></script-->
+				<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 				<script src="/socket.io/socket.io.js"></script>
 				<script src="./pong-game.js"></script>
 				<script src="./client.js"></script>
 				<script src="./ext_cdn.js"></script>
 				<script src="./jquery-1.7.2.js"></script>
-				
-			</div>             
+				</div>             
 	      </section>
 	    </div>
 	</div>
@@ -190,5 +207,4 @@
     </footer>
     <div class="clear"></div>
 </html>
-
 </body>
