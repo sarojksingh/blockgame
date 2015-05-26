@@ -1,0 +1,171 @@
+<?php 
+App::uses('AppController', 'Controller');
+class UsersController extends AppController
+{
+	public $components = array('Mailer');
+
+	public $uses = array('User');
+
+	public function register(){
+
+		//$userData = '{"username":"shashank","email":"shashank@gmail.com","password":"123456"}'; // for testing purpose
+
+		//$userData = $this->request;
+		
+		$userData = $this->request->data;
+		//echo "<pre>";print_r($userData);die;
+		//$userData = json_decode($userData,true);
+
+		//$zip_name		 = "1.jpg";				
+		//$zip_tmp_name	 = "/home/shashank/Pictures"; 
+
+		$zip_name		 = $this->request->params['form']['Userimage']['name'];//"user07858442073.666.png";				
+		$zip_tmp_name	 = $this->request->params['form']['Userimage']['tmp_name'];//"/tmp/phpxJkj2V"  userImage;
+
+		//echo "<pre>";print_r($userData);die;
+
+		if(!empty($userData)){
+			
+			$email_search = $this->User->find('first',array('conditions'=>array('email'=>$userData['email'])));
+				if(empty($email_search)){
+					
+					$userData['password'] = ($userData['password']);
+
+					if(!empty($zip_name)){
+						
+							$priv1 = 0777;
+							$imgpath= IMAGE_URL."/uploads";
+							if(!file_exists($imgpath)){
+							mkdir($imgpath, $priv1) ? true : false; // creates a new directory with write permission.
+							} 
+																
+							$imagename=time().'_'.$zip_name;
+							$filename=$imgpath."/".$imagename;
+							move_uploaded_file($zip_tmp_name,$filename);	
+							$url_zip=$imagename;
+							$userData['image_path'] = $imagename;
+							$image_url = BASE_URL.$imagename;
+					}
+
+						if(!$this->User->save($userData)) {
+
+							$error_message = "There is something wrong";
+							echo json_encode(array('status' => 'fail', 'message' =>$error_message));die;
+						}
+
+						else{
+							$message = "Registration sucessfully completed!";
+							$info = array('username'=>$userData['username'],'email'=>$userData['email'],'path'=>$image_url);
+							echo json_encode(array('status' => 'success', 'message' =>$message, 'data' => $info));die;
+						}
+
+
+
+				}
+
+				else{
+					echo json_encode(array('status' => 'fail','message' => 'Email address already exist')); die;
+				}
+		}
+
+		else{
+			echo json_encode(array('status' => 'fail', 'message' => 'Some problem occured.')); die;
+		}
+	}
+
+
+	public function login(){
+		//echo "helo";die;
+		$userData = '{"email":"arvind.kumar@evontech.com","password":"123456"}'; // for testing purpose
+
+		//$userData = $this->request->input();
+		$userData = json_decode($userData,true);
+		//echo "<pre>";print_r($userData);die;
+
+		if(!empty($userData)){
+			
+			$login_check = $this->User->find('first',array('conditions'=>array('email'=>$userData['email'],'password'=>$userData['password'])));
+				if(!empty($login_check)){
+					$user_access_token_id = $login_check['User']['id'];
+					$info = array('user_token_id'=>$user_access_token_id);
+					echo json_encode(array('status' => 'success','message' => 'Login sucessfully!', 'data' => $info)); die;
+				}
+
+				else{
+					echo json_encode(array('status' => 'fail','message' => 'Email address or password is incorrect')); die;
+				}
+		}
+
+		else{
+			echo json_encode(array('status' => 'fail','message' => 'Some problem occured.')); die;
+		}
+	}
+
+
+	public function forgetPassword(){
+		
+		//$userData = '{"email":"shashankgarg655@gmail.com"}';
+		//$userData = json_decode($userData,true);
+		//$userData = $this->request->data;
+		$userData = $this->request->input();
+		$userData = json_decode($userData,true);
+		//echo "<pre>";print_r($userData);die;
+		if(!empty($userData)){
+		    $user_email = $userData['email'];	
+			$user_check_email = $this->User->find('first', array('conditions' => array('email'=>$user_email)));
+				
+			if(!empty($user_check_email)){
+					 $userid = $user_check_email['User']['id'];
+					 $Useremail = $user_check_email['User']['email'];
+					 $userpassword = ($user_check_email['User']['password']);
+					$useremail = $Useremail;
+                    $subject = 'FORGOT PASSWORD';
+                   	$message = '';	
+					$message .= '<html>';
+	              	$message.='<table style="width:500px;margin:auto;border-collapse:collapse;border:1px solid #5A5A5A;">';
+					$message.='<thead style="background:#5A5A5A;">';
+					$message.='<tr>';
+					//$message.="<td width='50%' style='padding:14px 20px;'><img width='200' height='50' src='".BASE_URL."img/logo.png'></td>";
+					$message.='<td width="50%" style="padding:14px 20px;text-align:right;font-size:25px;color:#fff;"></td>';
+					$message.='</tr>';
+					$message.='</thead>';
+					$message.='<tbody>';
+					$message.='<tr>';
+					$message.='<td style="padding:5px 20px;" colspan="2">';
+					$message.="<h1 style=color: #08176b;font-size: 26px;font-weight: bold;padding: 8px 0;>Hello &nbsp;".$useremail."&nbsp;,</h1>";
+					$message.='<p style="font-size: 14px;line-height: 18px;text-align: justify;padding-bottom:10px;">You recently requested a password reset.</p>';
+					$message.='<p style="font-size: 14px;line-height: 18px;text-align: justify;padding-bottom:10px;">This is your Password '.$userpassword.'</p>';
+					$message .=	"Hope you have a good time using this site.";
+			        $message .= '<br/><br/>Best Regards';
+			        $message .= '<br/><br/>The AttFactory Team';
+					$message.='</td>';
+					$message.='</tr>';
+					$message.='</tbody>';
+					$message.='</table>';	
+					$message .= '<html>';
+                    //$mail = $this->sendmail($useremail, $subject, $message);
+                    $data = array();
+
+					$data['to'] = $Useremail;
+					$data['body'] = $message;
+					$data['subject'] = "Forgot Password";
+					//echo "<pre>";print_r($data);die;
+					$this->Mailer->send_mail($data); 
+  
+		        $error_message = "Please check your email,  password has been sent on your email.";
+				echo json_encode(array('status' => 'success', 'message' => $error_message)); die;
+					
+				}else{
+					echo json_encode(array('status' => 'Failiure','message' => 'Invalid Email Address')); die;
+			}
+
+		} else {
+			$error_message = 'Some thing wrong in your API'; 
+			echo json_encode(array('status' => 'Faliure', 'message' => $error_message));die;
+		}
+	}
+
+} // end of class
+
+
+?>
